@@ -1,66 +1,25 @@
-# CivicPulse — AI-Assisted Civic Incident Triage and Coordination
+# CivicPulse – AI-Assisted Civic Incident Reporting and Coordination
 
-## Overview
+CivicPulse is a civic incident reporting and coordination prototype designed to make it easier for citizens to report local problems and help civic teams review, prioritize, and track them.
 
-CivicPulse is a civic incident management prototype designed to improve how public infrastructure complaints are analysed, prioritised, reviewed, and tracked.
-
-Citizens frequently report issues such as damaged roads, garbage accumulation, drainage problems, water supply disruptions, and electrical hazards. Delays in identifying urgency and routing complaints to the appropriate department can affect public safety and service delivery.
-
-CivicPulse provides a structured workflow for incident reporting, severity assessment, department recommendation, duplicate detection, human approval, and resolution tracking.
-
-The project also explores human–AI coordination through Switch, where an AI agent analyses incidents, explains its recommendations, checks available incident history, and waits for explicit human approval.
+The project combines a Flask-based reporting dashboard with a Switch AI agent for incident analysis and operational coordination. It demonstrates how structured reporting, rule-based prioritization, duplicate detection, and human approval can support a more organized civic response workflow.
 
 ## Problem Statement
 
-Traditional civic complaint handling can involve fragmented reporting, inconsistent prioritisation, duplicate complaints, and delays in routing issues to responsible departments.
+Citizens frequently encounter civic issues such as damaged roads, garbage accumulation, water supply problems, drainage blockages, and non-functional streetlights. Reporting these issues and following their progress can be difficult when information is scattered or lacks a clear process.
 
-CivicPulse aims to make this process more organised, transparent, and accountable through an assisted incident management workflow.
+CivicPulse demonstrates a centralized workflow where incidents can be submitted, reviewed, categorized, prioritized, and tracked.
 
 ## Key Features
 
-### 1. Civic Incident Reporting
-Users can submit complaints with a location, issue category, and description.
-
-### 2. Severity Assessment
-The application evaluates incident descriptions and assigns one of four severity levels:
-
-- Low
-- Medium
-- High
-- Critical
-
-The current Flask implementation uses rule-based classification and predefined safety indicators.
-
-### 3. Department Recommendation
-The application recommends a relevant department based on the reported issue category.
-
-### 4. Duplicate Incident Detection
-The system compares new complaints with existing incidents using text similarity and location information to identify possible duplicates.
-
-Duplicate detection is advisory and does not automatically merge or discard reports.
-
-### 5. Human-in-the-Loop Approval
-Every submitted incident initially enters a pending approval state. A human reviewer can approve or reject the proposed assignment.
-
-### 6. Incident Status Tracking
-Approved incidents can be tracked through:
-
-- Assigned
-- In Progress
-- Resolved
-
-### 7. Switch AI Agent
-The `civicpulse-triage` agent provides an additional AI-assisted review workflow.
-
-It can:
-- Analyse incident descriptions.
-- Recommend severity levels.
-- Suggest responsible departments.
-- Compare reports against available incident history.
-- Explain possible duplicate matches and uncertainty.
-- Present assignment proposals.
-- Wait for explicit human approval.
-- Record human decisions in Switch.
+- **Civic Incident Reporting:** Submit civic complaints with a category, location, and description.
+- **Rule-Based Severity Classification:** Assigns severity levels based on incident details.
+- **Department Recommendation:** Suggests the relevant civic department based on the selected category.
+- **Duplicate Detection:** Identifies potentially similar reports using category, location, and description similarity.
+- **Human-in-the-Loop Approval:** Keeps new reports pending until a human reviews and approves or rejects them.
+- **Incident Tracking:** Tracks reports through Pending Approval, Assigned, In Progress, and Resolved statuses.
+- **Dashboard and Statistics:** Displays incident records and summary information.
+- **Switch AI Agent:** Uses a dedicated agent named `civicpulse-triage` to analyze incident information and support operational coordination.
 
 ## Technology Stack
 
@@ -69,135 +28,201 @@ It can:
 | Backend | Python, Flask |
 | Database | SQLite |
 | Frontend | HTML, CSS |
-| AI coordination | Switch AI agent |
-| Development environment | Visual Studio Code |
-| Container tooling | Docker installed; container deployment not yet configured |
+| AI Coordination | Switch |
+| Development Environment | Visual Studio Code |
 
-## System Workflow
+## Civic Incident Categories and Department Recommendations
 
-1. A civic complaint is submitted through the Flask application.
-2. The application analyses the report.
-3. Severity and department recommendations are generated.
-4. Potential duplicate incidents are identified.
-5. The incident is stored in the SQLite database.
-6. A human reviewer approves or rejects the proposed assignment.
-7. Approved incidents move through the status tracking workflow.
-8. The Switch AI agent can separately analyse incident information, explain its recommendations, and request human approval.
+| Incident Category | Recommended Department |
+|---|---|
+| Road Damage | GHMC Roads & Engineering |
+| Garbage | GHMC Sanitation Department |
+| Water Supply | HMWSSB |
+| Streetlight | GHMC Electrical Department |
+| Drainage | GHMC Drainage Department |
+| Public Safety | Local Civic Safety Authority |
+| Other | Relevant Municipal Department |
 
-## Human–AI Coordination Through Switch
+These are prototype recommendations and do not represent confirmed assignments to government departments.
 
-CivicPulse uses a dedicated Switch agent named `civicpulse-triage`.
+## How the Workflow Works
 
-The agent is configured to preserve incident details, avoid inventing missing information, explain uncertainty, and wait for explicit human approval before recording an approved triage decision.
+1. A citizen submits a civic incident through the CivicPulse reporting form.
+2. The application stores the report in the SQLite database.
+3. The system applies rule-based severity classification.
+4. A relevant civic department is recommended based on the incident category.
+5. Duplicate detection checks whether a similar report may already exist.
+6. The incident enters **Pending Approval** status.
+7. A human reviewer approves or rejects the report.
+8. Approved incidents can move through Assigned, In Progress, and Resolved.
+9. Incident information can be shared with the Switch agent for additional analysis and coordination.
 
-The demonstration uses a simulated electrical safety incident:
+## How Switch Is Used
 
-- Flask classified the incident as High severity.
-- Switch independently recommended Critical severity based on the active sparking wire and nearby pedestrians.
-- The agent explained its reasoning and uncertainty about department ownership.
-- A human approved the recommendation in Switch.
-- The approval was recorded in the Switch conversation.
+Switch is used as the AI coordination layer of CivicPulse.
 
-The corresponding Flask incident was separately approved in the dashboard.
+The project includes a Switch agent named:
 
-**Current integration status:** The Flask application and Switch agent operate as separate components. Incident details are manually provided to the Switch agent, and decisions are recorded independently. Automatic API-based synchronization between the two components has not yet been implemented.
+`civicpulse-triage`
 
-## Architecture
+The agent supports incident analysis by examining submitted incident information, identifying its severity and relevant context, and assisting with coordination decisions.
 
-**Flask Application**
-- Complaint submission
-- Rule-based severity assessment
+### Switch Coordination Workflow
+
+1. Incident information is taken from the CivicPulse application.
+2. The information is manually provided to the `civicpulse-triage` agent through the Switch environment.
+3. The agent analyzes the incident and provides its assessment.
+4. A human reviews the agent's recommendation before making an operational decision.
+
+### Human-in-the-Loop Example
+
+During testing, a streetlight-related incident was recorded in CivicPulse with a **High** severity classification.
+
+A separate demonstration scenario was provided to the Switch agent involving an electrical hazard with an exposed sparking wire and pedestrians nearby. The agent assessed that scenario as **Critical** because of the immediate safety risk.
+
+The human reviewer remained responsible for the final approval decision.
+
+The two assessments were based on different incident inputs. They were not automatically synchronized.
+
+### Important Integration Note
+
+CivicPulse and Switch operate as separate components in this prototype. Incident information is transferred manually between the Flask application and the Switch agent.
+
+There is currently no automatic API integration or database synchronization between the two components. Approval and status changes made in one component do not automatically update the other.
+
+## System Architecture
+
+The prototype consists of two main components:
+
+### 1. CivicPulse Application
+
+- Flask backend
+- SQLite database
+- Incident reporting interface
+- Severity classification
 - Department recommendation
 - Duplicate detection
-- Human approval
-- Incident status tracking
+- Human approval and status tracking
 
-**SQLite Database**
-- Incident records
-- Severity information
-- Department recommendations
-- Approval decisions
-- Status information
+### 2. Switch Coordination Layer
 
-**Switch AI Agent**
-- Incident analysis
-- Evidence-based recommendations
-- Duplicate assessment
-- Human approval interaction
-- Decision recording within Switch
+- Switch environment
+- `civicpulse-triage` agent
+- Discord messaging integration
+- Incident analysis and coordination support
+- Human review of agent recommendations
+
+The components work together through a manual information handoff.
 
 ## Installation and Setup
 
 ### Prerequisites
 
 - Python 3.11 or later
-- Visual Studio Code or another code editor
+- Git
+- Visual Studio Code (recommended)
 
-### 1. Clone the repository
+### Step 1: Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/Praneetha-as29/CivicPulse.git
 cd CivicPulse
 ```
 
-Replace the placeholder with the actual repository URL.
-
-### 2. Create a virtual environment
+### Step 2: Create a Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-### 3. Activate the environment
+### Step 3: Activate the Virtual Environment
 
-Windows PowerShell:
+**Windows:**
 
-```powershell
-.\.venv\Scripts\Activate.ps1
+```bash
+.venv\Scripts\activate
 ```
 
-### 4. Install dependencies
+### Step 4: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the application
+### Step 5: Run the Application
 
 ```bash
 python app.py
 ```
 
-### 6. Open the dashboard
+### Step 6: Open CivicPulse
 
-Visit:
+Open the following address in your browser:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-The SQLite database is created and initialized automatically when the application starts.
+The SQLite database is created locally by the application when required.
 
-## Future Enhancements
+## Project Structure
 
-- Automatic communication between Flask and Switch through a supported API or integration layer.
-- Shared incident identifiers and synchronized approval records.
-- Machine-learning-based incident classification.
-- Improved duplicate detection using semantic similarity.
-- Image-based evidence analysis.
-- Real-time incident coordination and notifications.
-- Deployment through Docker and a cloud hosting platform.
+```text
+CivicPulse/
+│
+├── app.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
+The SQLite database is generated locally and is excluded from Git tracking.
+
+## Testing and Demonstration
+
+The prototype can be demonstrated using simulated civic incident reports.
+
+The demonstration covers:
+
+- Submitting a new civic complaint.
+- Viewing the incident on the dashboard.
+- Checking rule-based severity classification.
+- Viewing the recommended department.
+- Identifying potential duplicate reports.
+- Reviewing an incident pending human approval.
+- Approving or rejecting an incident.
+- Updating incident status.
+- Manually sharing incident information with the Switch agent.
+- Reviewing the agent's assessment and human decision.
+
+All incidents used for demonstration are simulated. The prototype does not dispatch emergency services or directly communicate with municipal authorities.
 
 ## Safety and Limitations
 
-- The application is a prototype and is not connected to official municipal systems.
-- Severity and department recommendations are advisory.
-- The current Flask classification engine is rule-based, not a trained machine-learning model.
-- Switch approvals are recorded within Switch and do not constitute actual government department assignments.
-- No emergency services or municipal departments are contacted.
-- Duplicate detection identifies possible matches and does not establish that two reports concern the same physical incident.
-- Demonstration incidents are simulated.
+- Severity classification is rule-based and does not use a trained machine learning model.
+- Duplicate detection provides an indication of possible duplicates; it does not guarantee that two reports describe the same incident.
+- Department recommendations are suggestions and are not official government assignments.
+- Human approval is required before an incident proceeds beyond the pending review stage.
+- Switch agent recommendations are advisory and require human judgment.
+- CivicPulse and Switch do not currently have automatic API-based synchronization.
+- The prototype is intended for demonstration and evaluation, not deployment as a live emergency response system.
+
+## Future Enhancements
+
+- Automatic integration between CivicPulse and Switch through APIs.
+- Real-time incident updates and notifications.
+- Map-based incident visualization.
+- Citizen account management and report history.
+- Improved duplicate detection and incident prioritization.
+- Integration with verified civic authority systems.
+- Deployment to a production hosting environment.
 
 ## Project Goal
 
-CivicPulse demonstrates how structured civic reporting, automated triage, transparent recommendations, duplicate assessment, and human oversight can work together to support more accountable civic incident coordination.
+CivicPulse demonstrates how civic reporting, structured incident management, AI-assisted analysis, and human-in-the-loop decision-making can be combined into a practical coordination workflow.
+
+The goal is to make civic issue reporting more organized, transparent, and easier to manage while keeping important decisions under human control.
+
+---
+
+**Built for the Flip the Switch Hackathon.**
